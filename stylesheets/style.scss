@@ -1,0 +1,138 @@
+body {
+    $baseFontSize: 14px !global;
+    font: $baseFontSize "Lucida Grande", Helvetica, Arial, sans-serif;
+    margin: 0;
+    text-align: center;
+}
+
+a {
+    color: #00B7FF;
+}
+
+.navbar {
+    position: fixed;
+    top: 0;
+    background-color: lightblue;
+    width: 100%;
+    display: flex;
+
+    %navbarHover {
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+        &:hover {
+            background-color: lighten(lightblue, 10%);
+            font: {
+                size: 1.2em;
+                weight: bold;
+            }
+        }
+    }
+
+    .title {
+        @extend %navbarHover;
+        margin: 0 auto;
+    }
+
+    .menuList {
+        display: flex;
+        list-style: none;
+        margin: auto;
+        padding: 0;
+
+        li {
+            @extend %navbarHover;
+        }
+    }
+}
+
+.container {
+    margin-top: 56px;
+
+    > p {
+        padding-top: 10px;
+    }
+}
+
+.lobby {
+    display: flex;
+    margin: auto;
+    width: 60%;
+    border: 1px solid grey;
+    border-radius: 24px;
+    padding: 20px;
+
+    .chat {
+        display: flex;
+        width: 100%;
+        height: 400px;
+
+        .chatList {
+            overflow-y: scroll;
+            text-align: left;
+
+            li {
+                list-style: none;
+                padding: 10px 0;
+                padding-left: 8px;
+
+                &:nth-child(odd) {
+                    background-color: cornflowerblue;
+                }
+            }
+        }
+
+        .chatMessages {
+            display: flex;
+            flex-direction: column;
+            width: 70%; 
+            background-color: lightgrey;
+
+            .chatFooter {
+                margin: 8px 0;
+                text-align: center;
+                width: 100%;
+                display: flex;
+                $inputMargin: 20px;
+
+                input {
+                    margin: $inputMargin;
+                    margin-right: 0;
+                    height: 26px;
+                    flex-grow: 1;
+                }
+
+                .inputButton {
+                    margin-top: $inputMargin;
+                    margin-right: $inputMargin;
+                    padding: 5px;
+                    border: 1px solid rgba(black, 0.5);
+                    background-color: rgba(crimson, 0.5);
+                    height: 20px;
+                }
+            }
+        }
+
+        .chatUsers {
+            background-color: lightslategray;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+
+            > span {
+                padding: 10px;
+                font-size: $baseFontSize * 1.25;
+                background-color: firebrick;
+                color: whitesmoke;
+            }
+
+            .chatList li {
+                padding: 5px;
+
+                &:nth-child(odd) {
+                    background-color: crimson;
+                }
+            }
+        }
+    }
+}
