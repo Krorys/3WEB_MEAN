@@ -3,12 +3,16 @@
     <head>
         <title><%= title %></title>
         <link rel='stylesheet' href='/stylesheets/style.css' />
+        <script src="scripts/angular/angular.js"></script>
+        <script src="scripts/angular-route/angular-route.js"></script>
+        <script src="/app/bsApp.module.js"></script>
+        <script src="/app/LobbyCtrl.js"></script>
     </head>
-    <body>
+    <body ng-app="bsApp" ng-controller="BaseCtrl">
         <div class="navbar">
             <div class="navbarLeft">
-                <li>Home</li>
-                <li>Lobby</li>
+                <li ng-click="goToView('')">Home</li>
+                <li ng-click="goToView('lobby')">Lobby</li>
                 <li>Leaderboards</li>
             </div>
             <div class="navbarRight">
@@ -17,55 +21,6 @@
                 <li>About</li>
             </div>
         </div>
-        <div class="container">
-            <p>Welcome to <%= title %></p>
-            <div class="lobby">
-                <div class="chat">
-                    <div class="chatMessages">
-                        <div class="chatList">
-                            <li>Je m'appelle Mélenchon j'adore la France</li>
-                            <li>ici naruto je viens détruire orichimaron</li>
-                            <li>Je m'appelle Mélenchon j'adore la France</li>
-                            <li>ici naruto je viens détruire orichimaron</li>
-                            <li>Je m'appelle Mélenchon j'adore la France</li>
-                            <li>ici naruto je viens détruire orichimaron</li>
-                            <li>Je m'appelle Mélenchon j'adore la France</li>
-                            <li>ici naruto je viens détruire orichimaron</li>
-                            <li>Je m'appelle Mélenchon j'adore la France</li>
-                            <li>ici naruto je viens détruire orichimaron</li>
-                            <li>Je m'appelle Mélenchon j'adore la France</li>
-                            <li>ici naruto je viens détruire orichimaron</li>
-                        </div>
-                        <div class="chatFooter">
-                            <input type="text">
-                            <div class="inputButton">Send</div>
-                        </div>
-                    </div>
-                    <div class="chatUsers">
-                        <span>Connected users</span>
-                        <div class="chatList">
-                            <li>Jean Pierre Foucault</li>
-                            <li>Astroboy</li>
-                            <li>Jean Pierre Foucault</li>
-                            <li>Astroboy</li>
-                            <li>Jean Pierre Foucault</li>
-                            <li>Astroboy</li>
-                            <li>Jean Pierre Foucault</li>
-                            <li>Astroboy</li>
-                            <li>Jean Pierre Foucault</li>
-                            <li>Astroboy</li>
-                            <li>Jean Pierre Foucault</li>
-                            <li>Astroboy</li>
-                            <li>Jean Pierre Foucault</li>
-                            <li>Astroboy</li>
-                            <li>Jean Pierre Foucault</li>
-                            <li>Astroboy</li>
-                            <li>Jean Pierre Foucault</li>
-                            <li>Astroboy</li>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="container" ng-view></div>
     </body>
 </html>
