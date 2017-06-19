@@ -5,8 +5,20 @@ angular.module('bsApp', ['ngRoute'])
     .when("/", {
         template : "<p>Landing page.</p>"
     })
+    .when("/game", {
+        templateUrl : "game.html"
+    })
+    .when("/lobby", {
+        templateUrl : "lobby.html"
+    })
+    .when("/leaderboards", {
+        templateUrl : "leaderboards.html"
+    })
+    .when("/about", {
+        templateUrl : "about.html"
+    })
     .otherwise({
-        templateUrl : "chat.html"
+        templateUrl : "lobby.html"
     });
 })
 
@@ -16,5 +28,10 @@ function BaseCtrl ($scope, $route, $routeParams, $location) {
     $scope.goToView = function(viewName) {
         viewName = viewName === undefined ? '' : viewName;
         $location.path('/' + viewName);
+    }
+
+    $scope.modalShow = false;
+    $scope.toggleModal = function() {
+        $scope.modalShow = !$scope.modalShow;
     }
 }
