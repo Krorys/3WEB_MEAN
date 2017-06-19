@@ -15,26 +15,10 @@ a {
     background-color: lightblue;
     width: 100%;
     display: flex;
+    height: 56.8px;
+    overflow-y: hidden;
 
-    %navbarHover {
-        padding: 20px;
-        cursor: pointer;
-        transition: all 0.2s;
-        &:hover {
-            background-color: lighten(lightblue, 10%);
-            font: {
-                size: 1.2em;
-                weight: bold;
-            }
-        }
-    }
-
-    .title {
-        @extend %navbarHover;
-        margin: 0 auto;
-    }
-
-    .menuList {
+    %navbarMenu {
         display: flex;
         list-style: none;
         margin: auto;
@@ -43,6 +27,28 @@ a {
         li {
             @extend %navbarHover;
         }
+    }
+
+    %navbarHover {
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+        &:hover {
+            background-color: lighten(lightblue, 10%);;
+            font: {
+                size: 1.2em;
+                weight: bold;
+            }
+        }
+    }
+
+    .navbarLeft {
+        @extend %navbarMenu;
+        margin: 0 auto;
+    }
+
+    .navbarRight {
+        @extend %navbarMenu;
     }
 }
 
@@ -85,7 +91,7 @@ a {
         .chatMessages {
             display: flex;
             flex-direction: column;
-            width: 70%; 
+            width: 75%; 
             background-color: lightgrey;
 
             .chatFooter {
@@ -96,19 +102,17 @@ a {
                 $inputMargin: 20px;
 
                 input {
-                    margin: $inputMargin;
-                    margin-right: 0;
+                    margin: 0 0 $inputMargin $inputMargin;
                     height: 26px;
                     flex-grow: 1;
                 }
 
                 .inputButton {
-                    margin-top: $inputMargin;
-                    margin-right: $inputMargin;
-                    padding: 5px;
+                    margin-right: $inputMargin + 4;
+                    padding: 6px;
                     border: 1px solid rgba(black, 0.5);
                     background-color: rgba(crimson, 0.5);
-                    height: 20px;
+                    height: 18px;
                 }
             }
         }
@@ -122,15 +126,16 @@ a {
             > span {
                 padding: 10px;
                 font-size: $baseFontSize * 1.25;
-                background-color: firebrick;
+                background-color: dodgerblue;
                 color: whitesmoke;
             }
 
             .chatList li {
-                padding: 5px;
+                padding: 4px;
+                text-align: center;
 
                 &:nth-child(odd) {
-                    background-color: crimson;
+                    background-color: lightskyblue;
                 }
             }
         }
