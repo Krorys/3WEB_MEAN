@@ -23,7 +23,7 @@ router.post('/users/add', function(req, res) {
 
         users.insertOne(req.body);
         console.log('New user added: ', req.body.username);
-        res.send('User registered successfully.');  
+        res.send({success: true, msg: 'User registered successfully.'});  
     });
 })
 
@@ -32,7 +32,7 @@ router.get('/users/:username', function(req, res) {
     users.findOne({username: req.params.username})
     .then(function(result) {
         if (!result)
-            return res.send('User doesn\'t exists.');
+            return res.send({success: false, msg: 'User doesn\'t exists.'});
         res.send(result);  
     });
 })
