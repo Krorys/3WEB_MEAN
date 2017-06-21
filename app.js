@@ -6,9 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var MongoClient = require('mongodb').MongoClient;
 var sassMiddleware = require('node-sass-middleware');
-
-var index = require('./routes/index');
-// var users = require('./routes/users');
+var db = require('./db')
 
 var app = express();
 
@@ -32,8 +30,10 @@ app.use(sassMiddleware({
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/scripts', express.static(path.join(__dirname, 'node_modules')));
 
+var index = require('./routes/index');
+var api = require('./routes/api');
 app.use('/', index);
-// app.use('/users', users);
+app.use('/api', api);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -53,14 +53,12 @@ app.use(function(err, req, res, next) {
 	res.render('error');
 });
 
-
-var db;
-
-MongoClient.connect('mongodb://admin:admin@ds123312.mlab.com:23312/battleship', (err, database) => {
+var dbURI = 'mongodb://admin:admin@ds123312.mlab.com:23312/battleship';
+var dbLocalURI = 'mongodb://127.0.0.1:27017/battleship';
+db.connect(dbURI, function(err) {
 	if (err)
 	    return console.log(err)
-	db = database;
-	console.log('Connected to the database "' + db.databaseName + '".');
 })
 
 module.exports = app;
+

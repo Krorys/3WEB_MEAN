@@ -20,18 +20,4 @@ angular.module('bsApp', ['ngRoute'])
     .otherwise({
         templateUrl : "lobby.html"
     });
-})
-
-.controller('BaseCtrl', BaseCtrl);
-
-function BaseCtrl ($scope, $route, $routeParams, $location) {
-    $scope.goToView = function(viewName) {
-        viewName = viewName === undefined ? '' : viewName;
-        $location.path('/' + viewName);
-    }
-
-    $scope.modalShow = false;
-    $scope.toggleModal = function() {
-        $scope.modalShow = !$scope.modalShow;
-    }
-}
+});

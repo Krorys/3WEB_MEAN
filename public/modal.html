@@ -1,18 +1,18 @@
-<div id="login-modal" ng-show="modalShow">
+<div id="login-modal" ng-show="modalShow" ng-click="hideModal($event)">
     <div id="login-content">
         <div id="content-container">
-            <div id="title-container">Login</div>
-            <div id="form-swap-button">Register</div>
+            <div id="title-container">{{modalTitle}}</div>
+            <div id="form-swap-button" ng-click="swapForms()">{{swapButtonTitle}}</div>
             <div id="form-container">
-                <form action="" method="post" id="login-form">
-                    <input type="text" name="username" placeholder="Username" required>
-                    <input type="password" name="password" placeholder="Password" required>
-                    <input type="submit" value="Login !">
+                <form method="post" ng-if="!isRegisterForm" class="modalForm">
+                    <input type="text" ng-model="loginData.username" placeholder="Username" required>
+                    <input type="password" ng-model="loginData.password" placeholder="Password" required>
+                    <input type="submit" value="Login !" ng-click="login()">
                 </form>
-                <form action="" method="post">
-                    <input type="text" name="username" placeholder="Username" required>
-                    <input type="password" name="password" placeholder="Password" required>
-                    <input type="submit" value="Login !">
+                <form method="post" ng-if="isRegisterForm" class="modalForm register">
+                    <input type="text" ng-model="registerData.username" placeholder="Username" required>
+                    <input type="password" ng-model="registerData.password" placeholder="Password" required>
+                    <input type="submit" value="Register !" ng-click="register()">
                 </form>
             </div>
         </div>
