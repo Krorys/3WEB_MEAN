@@ -1,10 +1,10 @@
 angular.module('bsApp')
 .controller('ModalCtrl', ModalCtrl);
 
-function ModalCtrl ($scope, $http, $route, $routeParams, $location) {
+function ModalCtrl ($scope, $http, $state) {
     $scope.goToView = function(viewName) {
         viewName = viewName === undefined ? '' : viewName;
-        $location.path('/' + viewName);
+        $state.go(viewName);
     }
 
     $scope.modalShow = false;
@@ -29,8 +29,7 @@ function ModalCtrl ($scope, $http, $route, $routeParams, $location) {
     $scope.register = function() {
         $http.post('/api/users/add', $scope.registerData)
             .then(function(data) {
-                $scope.registerData = {}; // clear the form so our user is ready to enter another
-                // $scope.todos = data;
+                $scope.registerData = {}; // clear the form so our user is ready to 
                 console.log(data);
             },
             function(data) {
