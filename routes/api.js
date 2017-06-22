@@ -9,9 +9,10 @@ router.get('/users/list', function(req, res) {
 
     users.find().toArray(function(err, results) {
         // res.render('users', {comments: results})
-        console.log(results);
+        // console.log(results);
         res.json(results);
     });
+    // console.log(req.headers);
 });
 
 router.post('/users/add', function(req, res) {

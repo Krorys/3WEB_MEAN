@@ -12,6 +12,7 @@
     "angular-route": "^1.6.4",
     "angular-ui-router": "^1.0.3",
     "body-parser": "~1.17.1",
+    "buffer": "^5.0.6",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.3",
     "ejs": "~2.5.6",
@@ -19,7 +20,8 @@
     "mongodb": "^2.2.28",
     "morgan": "~1.8.1",
     "node-sass-middleware": "^0.11.0",
-    "serve-favicon": "~2.4.2"
+    "serve-favicon": "~2.4.2",
+    "socket.io": "^2.0.3"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"

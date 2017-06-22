@@ -5,8 +5,9 @@
         <li ng-click="goToView('leaderboards')">Leaderboards</li>
     </div>
     <div class="navbarRight">
-        <li ng-click="toggleModal()">Sign In | Sign out</li>
-        <li ng-click="">Sign Up</li>
+        <li ng-click="toggleModal('login')" ng-if="!user">Log In</li>
+        <li ng-click="toggleModal('register')" ng-if="!user">Register</li>
+        <li ng-click="logout()" ng-if="user">Log out</li>
         <li ng-click="goToView('about')">About</li>
     </div>
 </div>

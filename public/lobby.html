@@ -16,10 +16,12 @@
                 <li>Je m'appelle Mélenchon j'adore la France</li>
                 <li>ici naruto je viens détruire orichimaron</li>
             </div>
-            <div class="chatFooter">
-                <input type="text">
-                <div class="inputButton">Send</div>
-            </div>
+            <form class="chatFooter" ng-submit="sendMessage($event)" ng-if="user">
+                <div class="inputGroup">
+                    <span id="fromUser" class="inputBefore">@{{user.username}}</span>
+                    <input type="text" id="msgInput" ng-keypress="writeMessage()">
+                </div>
+            </form>
         </div>
         <div class="chatUsers">
             <span>Connected users</span>

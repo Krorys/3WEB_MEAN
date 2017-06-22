@@ -1,91 +1,134 @@
-#!/usr/bin/env node
-
-/**
- * Module dependencies.
- */
-
-var app = require('./app');
-var debug = require('debug')('3web-mean:server');
+var express = require('express');
 var http = require('http');
+var path = require('path');
+var favicon = require('serve-favicon');
+var logger = require('morgan');
+var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
+var MongoClient = require('mongodb').MongoClient;
+var sassMiddleware = require('node-sass-middleware');
+var Buffer = require('buffer');
 
-/**
- * Get port from environment and store in Express.
- */
-
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
-
-/**
- * Create HTTP server.
- */
-
+var index = require('./routes/index');
+var api = require('./routes/api');
+var db = require('./db')
+var app = express();
 var server = http.createServer(app);
+var io = require('socket.io').listen(server);
+var port = 3000;
 
-/**
- * Listen on provided port, on all network interfaces.
- */
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
-console.log('Started on port :', 3000);
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(sassMiddleware({
+    /* Options */
+    src: __dirname,
+    dest: path.join(__dirname, 'public'),
+    debug: true,
+    outputStyle: 'compressed',
+}));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/scripts', express.static(path.join(__dirname, 'node_modules')));
 
-/**
- * Normalize a port into a number, string, or false.
- */
+app.use('/', index);
+app.use('/api', api);
 
-function normalizePort(val) {
-  var port = parseInt(val, 10);
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+	var err = new Error('Not Found');
+	err.status = 404;
+	next(err);
+});
 
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
+// error handler
+app.use(function(err, req, res, next) {
+	// set locals, only providing error in development
+	res.locals.message = err.message;
+	res.locals.error = req.app.get('env') === 'development' ? err : {};
+	
+	// render the error page
+	res.status(err.status || 500);
+	res.render('error');
+});
 
-  if (port >= 0) {
-    // port number
-    return port;
-  }
+server.listen(port, function() {
+    console.log('Server is listening on : ' + port);
+});
 
-  return false;
-}
+var dbURI = 'mongodb://admin:admin@ds123312.mlab.com:23312/battleship';
+var dbLocalURI = 'mongodb://127.0.0.1:27017/battleship';
+db.connect(dbURI, function(err) {
+	if (err)
+	    return console.log(err)
+})
 
-/**
- * Event listener for HTTP server "error" event.
- */
+var writingUsers = [];
+var currentUsers = [];
 
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
+io.on('connection', function(socket){
+    console.log('User connected');
+    var loggedUser;
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+    socket.on('disconnect', function(){
+        console.log('User disconnected', loggedUser);
+        if (loggedUser == null)
+            return;
+        currentUsers.remove(loggedUser);
+        
+        io.emit('usersList', currentUsers);
+        var message = {
+            sender: loggedUser.name,
+            at : new Date().toISOString(),
+            text : 'has disconnected.', 
+            type: 'status'
+        };
+        socket.broadcast.emit('displayMsg', message);
+    });
 
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
-}
+    socket.on('logIn', function (username) {
+        console.log('Logged as :', username);
+        loggedUser = {
+            id: socket.id,
+            name: username
+        };
+        currentUsers.push(loggedUser);
+        
+        socket.emit('logInSuccess', loggedUser.name);
+        io.emit('usersList', currentUsers);
+        
+        var message = {
+            sender: loggedUser.name,
+            at : new Date().toISOString(),
+            text : 'has joined.',
+            type: 'status'
+        };
+        io.emit('displayMsg', message);
+    });
 
-/**
- * Event listener for HTTP server "listening" event.
- */
+    socket.on('sendMsg', function (message) {
+        console.log('Message sent :', message);
+        io.emit('displayMsg', message);
+    });
 
-function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
-}
+    socket.on('writingMsg', function (user) {
+        console.log('Message being written by :', user)
+        if (writingUsers.indexOf(user) == -1)
+            writingUsers.push(user);
+        socket.broadcast.emit('displayIsWriting', writingUsers);
+    });
+
+    socket.on('stopWritingMsg', function (user) {
+        console.log('Stopped writing :', user);
+        writingUsers.splice(writingUsers.indexOf(user), 1);
+        io.emit('displayIsWriting', writingUsers);
+    });
+});
+
+module.exports = app;
+

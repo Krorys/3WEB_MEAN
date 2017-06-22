@@ -18,7 +18,7 @@ angular.module('bsApp', ['ngCookies', 'ui.router'])
         var restrictedPage = !$state.includes('login');
         var loggedIn = $rootScope.globals.currentUser;
         if (restrictedPage && !loggedIn) {
-            console.log('no cookies & unauth state');
+            console.log('no cookies & unauth state(page)');
             // $state.go('login');
         }
         if (!auth.getIsAuthenticated())

@@ -36,7 +36,7 @@ function AuthService($http, $cookies, $rootScope) {
 
     function SetCredentials(user) {
         var authdata = Base64.encode(user.username + ':' + user.password);
-
+        
         $rootScope.globals = {
             currentUser: {
                 username: user.username,
@@ -53,10 +53,11 @@ function AuthService($http, $cookies, $rootScope) {
         $cookies.putObject('globals', $rootScope.globals, { expires: cookieExp });
     }
 
-    function ClearCredentials() {
+    function ClearCredentials(callback) {
         $rootScope.globals = {};
         $cookies.remove('globals');
         $http.defaults.headers.common.Authorization = 'Basic';
+        callback();
     }
 }
 
