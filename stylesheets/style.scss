@@ -98,96 +98,266 @@ a {
     }
 }
 
-.lobby {
+.contentEdge {
     display: flex;
     margin: auto;
     width: 60%;
     background-color: #eee;
     border-radius: 24px;
     padding: 20px;
+}
 
-    .chat {
+.content {
+    display: flex;
+    width: 100%;
+    height: 430px;
+}
+
+.chatList {
+    overflow-y: auto;
+    text-align: left;
+
+    &#messagesContainer {
+        height: 360px;
+    }
+
+    li {
+        list-style: none;
+        padding: 10px 0;
+        padding-left: 8px;
+
+        &:nth-child(even) {
+            background-color: lightskyblue;
+        }
+
+        &.status {
+            font-size: 12px;
+            font-style: italic;
+        }
+
+        .pseudo {
+            font-weight: bold;
+            padding: 5px;
+        }
+    }
+}
+
+.chatMessages {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+
+    .chatFooter {
+        margin-top: 8px;
         display: flex;
+    }
+
+    #isWritingField {
+        height: 21px;
+        text-align: left;
+        margin-left: 15px;
+        margin-top: 10px;
+    }
+}
+
+.chatUsers {
+    width: 25%;
+    display: flex;
+    flex-direction: column;
+
+    > span {
+        padding: 10px;
+        font-size: $baseFontSize * 1.25;
+        color: black;
+    }
+
+    .chatList li {
+        padding: 4px;
+        text-align: center;
+
+        &:nth-child(even) {
+            background-color: lightskyblue;
+        }
+    }
+}
+
+.gameBoard2 {
+    display: flex;
+    flex-wrap: wrap; 
+    width: 50%;
+    background-color: cyan;
+
+    .cell2 {
+        line-height: 3;
+        // flex-basis: 11.11%;
+        flex-basis: 10%;
+        margin: 0 auto;
+        padding-left: 4.1px;
+        border-right: 1px solid rgba(0,0,0,0.2);
+        border-bottom: 1px solid rgba(0,0,0,0.2);
+
+        &:nth-child(9n) {
+            border-right: none;
+        }
+        &:nth-last-child(-n+9) {
+            border-bottom: none;
+        }
+
+        &:hover {
+            background-color: cornflowerblue;
+        }
+    }
+}
+
+.gameBoard3 {
+    margin: auto;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    background-color: cyan;
+
+    .row {
+        // border: 1px solid rgba(0,0,0,0.2);
+        // flex-basis: 10.64%;
+        flex-basis: 10%;
+        display: flex;
+        flex-direction: row;
+    }
+
+    .cell {
+        flex-basis: 10%;
+        border: 1px solid rgba(0,0,0,0.2);
+
+
+        &:hover {
+            background-color: cornflowerblue;
+        }
+    }
+}
+
+.gameContainer {
+    width: 50%;
+    display: flex;
+}
+
+.gameBoard {
+    $boardSize: 400px;
+    width: $boardSize;
+    height: $boardSize;
+    margin: auto;
+    display: flex;
+    flex-wrap: wrap;
+    background-color: lightskyblue;
+
+    .row {
         width: 100%;
-        height: 430px;
+        display: flex;
 
-        .chatList {
-            overflow-y: auto;
-            text-align: left;
+        .cell {
+            flex-basis: 11%;
+            border: 1px solid rgba(0,0,0,0.2);
+            line-height: 2.5;
+            cursor: pointer;
 
-            &#messagesContainer {
-                height: 360px;
+            &.error {
+                background-color: crimson;
             }
+            &.select {
+                background-color: white;
+            }
+            $borderColor: white;
+            &.used.horizontal {
+                border-top-color: $borderColor;
+                border-bottom-color: $borderColor;
 
-            li {
-                list-style: none;
-                padding: 10px 0;
-                padding-left: 8px;
-
-                &:nth-child(even) {
-                    background-color: lightskyblue;
+                &.shipStart {
+                    border-left-color: $borderColor;
                 }
-
-                &.status {
-                    font-size: 12px;
-                    font-style: italic;
-                }
-
-                .pseudo {
-                    font-weight: bold;
-                    padding: 5px;
+                &.shipEnd {
+                    border-right-color: $borderColor;
                 }
             }
+            &.used.vertical {
+                border-left-color: $borderColor;
+                border-right-color: $borderColor;
+
+                &.shipStart {
+                    border-top-color: $borderColor;
+                }
+                &.shipEnd {
+                    border-bottom-color: $borderColor;
+                }
+            }
+            &.lime {
+                background-color: lime;
+            }
+            &.mediumorchid {
+                background-color: mediumorchid;
+            }
+            &.coral {
+                background-color: coral;
+            }
+            &.royalblue {
+                background-color: royalblue;
+            }
+
+            // &:hover {
+            //     background-color: cornflowerblue;
+            //     cursor: pointer;
+            // }
         }
+    }
+}
 
-        .chatMessages {
+.gameTab {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+
+    .gameChat {
+        flex-basis: 50%;
+        display: flex;
+        flex-direction: column;
+        background-color: coral;
+    }
+
+    .gamePanel {
+        flex-basis: 50%;
+        display: flex;
+        text-align: left;
+        background-color: lightgreen;
+
+        .shipList {
+            margin: 0 auto;
+            width: 80%;
             display: flex;
             flex-direction: column;
-            flex-grow: 1;
-            // width: 75%; 
 
-            .chatFooter {
-                margin-top: 8px;
+            .shipRow {
+                margin: 10px;
                 display: flex;
-            }
+                flex-direction: row;
 
-            #isWritingField {
-                height: 21px;
-                text-align: left;
-                margin-left: 15px;
-                margin-top: 10px;
-            }
-        }
+                span {
+                    flex-grow: 1;
 
-        .chatUsers {
-            // flex-grow: 1;
-            width: 25%;
-            display: flex;
-            flex-direction: column;
+                    &.shipName {
+                        text-align: right;
+                    }
+                }
 
-            > span {
-                padding: 10px;
-                font-size: $baseFontSize * 1.25;
-                // background-color: lightskyblue;
-                color: black;
-            }
-
-            .chatList li {
-                padding: 4px;
-                text-align: center;
-
-                &:nth-child(even) {
-                    background-color: lightskyblue;
+                button {
+                    width: 30%;
                 }
             }
         }
     }
 }
 
+
 .leaderboards {
     width: 50%;
     margin: auto;
-    // background-color: lightblue;
 
     table, th, td {
         border: 1px solid rgba(black, 0.1);

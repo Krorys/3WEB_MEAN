@@ -43,8 +43,8 @@ angular.module('bsApp', ['ngCookies', 'ui.router'])
     
     .state('game', {
         url : '/game',
-        // templateUrl : "game.html",
-        template : "<p>Game.</p>"
+        templateUrl : "game.html",
+        controller : 'GameCtrl'
     })
     
     .state('lobby', {

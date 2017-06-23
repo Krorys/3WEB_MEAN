@@ -1,0 +1,40 @@
+<p>Game X : Y VS Z</p>
+
+<div class="contentEdge">
+    <div class="content">
+        <!--<div class="gameBoard">
+            <div class="cell" ng-repeat="x in board"></div>
+        </div>-->
+        <!--<table class="gameBoard">
+            <td class="cell" ng-repeat="x in board"></td>
+        </table>-->
+        <div class="gameContainer">
+            <div class="gameBoard">
+                <div class="row" ng-repeat="row in board" ng-mouseleave="cleanSelectedCells()">
+                    <div class="cell" ng-repeat="cell in row" ng-class="(cell.hoverState ? cell.hoverState : '') + ' ' + (cell.state ? cell.state : '') + ' ' + (cell.orientation ? cell.orientation : '') + ' ' + (cell.shipStart ? 'shipStart' : '') + ' ' + (cell.shipEnd ? 'shipEnd' : '')" ng-mouseover="cellHover(cell)" ng-click="placeShip()">
+                        {{cell.posX + '' + cell.posY}}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="gameTab">
+            <div class="gamePanel">
+                <div class="shipList">
+                    <div class="shipRow">
+                        <span>Selected ship : {{selectedShip.name || 'none'}}</span>
+                        <span>Orientation: {{(isOrientationVertical) ? 'Vertical' : 'Horizontal'}}</span>
+                        <button type="button" ng-click="swapOrientation()">Swap orientation</button>
+                    </div>
+                    <div class="shipRow" ng-repeat="ship in shipsAvailable">
+                        <button type="button" ng-click="pickShip(ship)" ng-disabled="ship.nb < 1">Pick one</button>
+                        <span class="shipName">{{ship.name}} available : {{ship.nb}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="gameChat">
+                    
+            </div>
+        </div>
+    </div>
+</div>
