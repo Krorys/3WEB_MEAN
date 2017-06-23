@@ -1,11 +1,10 @@
 angular.module('bsApp')
 .controller('BaseCtrl', BaseCtrl);
 
-function BaseCtrl ($scope, $http, $state, $transitions, $rootScope, AuthService) {
+function BaseCtrl ($scope, $http, $state, $transitions, $rootScope, AuthService, socket) {
 
     $transitions.onStart({}, function(trans) {
         $scope.user = $rootScope.globals.currentUser;
-        console.log('logged', $scope.user != null);
         if ($scope.user)
             console.log($scope.user);
     });  
@@ -20,6 +19,7 @@ function BaseCtrl ($scope, $http, $state, $transitions, $rootScope, AuthService)
         if (tab) {
             $scope.isRegisterForm = tab === 'register' ? false : true;
             $scope.swapForms();
+            // document.querySelector('.modalForm input').focus();s
         }
         $scope.modalShow = !$scope.modalShow;
     };
@@ -42,19 +42,24 @@ function BaseCtrl ($scope, $http, $state, $transitions, $rootScope, AuthService)
         AuthService.Login($scope.loginData, function(res) {
             if (res.success) {
                 AuthService.SetCredentials($scope.loginData);
+                $scope.errorMsg = '';
                 $scope.loginData = {};
                 $scope.toggleModal();
-                $state.reload();
-                // $state.go('lobby', {}, {reload: true});
+                $scope.isConnectedToChat = false;
+                $state.go('lobby', {}, {reload: true});
+                // socket.emit('logIn', $scope.loginData.username);
+                // $state.reload();
                 // window.location.reload();
             }
             else
-                console.log(res.msg);
+                $scope.errorMsg = res.msg;
         });
     };
 
     $scope.logout = function() {
         AuthService.ClearCredentials(function() {
+            socket.disconnect();
+            // socket.emit('logOut', $scope.loginData.username);
             $state.reload();
             // window.location.reload();
         });
@@ -63,14 +68,19 @@ function BaseCtrl ($scope, $http, $state, $transitions, $rootScope, AuthService)
     $scope.registerData = {};
     $scope.register = function() {
         $http.post('/api/users/add', $scope.registerData)
-        .then(function(data) {
-            $scope.loginData = $scope.registerData;
-            $scope.login();
-            $scope.registerData = {};
-            console.log(data);
+        .then(function(res) {
+            if (!res.data.success)
+                $scope.errorMsg = res.data.msg;
+            else {
+                $scope.errorMsg = '';
+                $scope.loginData = $scope.registerData;
+                $scope.login();
+                $scope.registerData = {};
+                // console.log(res);
+            }
         },
-        function(data) {
-            console.log('Error: ' + data);
+        function(res) {
+            console.log('Error: ' + res);
         });
     };
 }

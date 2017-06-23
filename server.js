@@ -68,14 +68,25 @@ db.connect(dbURI, function(err) {
 	    return console.log(err)
 })
 
+Array.prototype.remove = function() {
+    var what, a = arguments, L = a.length, ax;
+    while (L && this.length) {
+        what = a[--L];
+        while ((ax = this.indexOf(what)) !== -1) {
+            this.splice(ax, 1);
+        }
+    }
+    return this;
+};
+
 var writingUsers = [];
 var currentUsers = [];
 
-io.on('connection', function(socket){
+io.on('connection', function(socket) {
     console.log('User connected');
     var loggedUser;
 
-    socket.on('disconnect', function(){
+    function logout() {
         console.log('User disconnected', loggedUser);
         if (loggedUser == null)
             return;
@@ -89,17 +100,20 @@ io.on('connection', function(socket){
             type: 'status'
         };
         socket.broadcast.emit('displayMsg', message);
-    });
+    }
+
+    socket.on('disconnect', logout);
+    socket.on('logOut', logout);
 
     socket.on('logIn', function (username) {
-        console.log('Logged as :', username);
+        // console.log('Logged as :', username);
         loggedUser = {
             id: socket.id,
             name: username
         };
         currentUsers.push(loggedUser);
         
-        socket.emit('logInSuccess', loggedUser.name);
+        socket.emit('logInSuccess');
         io.emit('usersList', currentUsers);
         
         var message = {
@@ -111,20 +125,24 @@ io.on('connection', function(socket){
         io.emit('displayMsg', message);
     });
 
+    socket.on('visit', function() {
+        socket.emit('usersList', currentUsers);
+    });
+
     socket.on('sendMsg', function (message) {
-        console.log('Message sent :', message);
+        // console.log('Message sent :', message);
         io.emit('displayMsg', message);
     });
 
     socket.on('writingMsg', function (user) {
-        console.log('Message being written by :', user)
+        // console.log('Message being written by :', user)
         if (writingUsers.indexOf(user) == -1)
             writingUsers.push(user);
         socket.broadcast.emit('displayIsWriting', writingUsers);
     });
 
     socket.on('stopWritingMsg', function (user) {
-        console.log('Stopped writing :', user);
+        // console.log('Stopped writing :', user);
         writingUsers.splice(writingUsers.indexOf(user), 1);
         io.emit('displayIsWriting', writingUsers);
     });

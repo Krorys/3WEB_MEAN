@@ -2,19 +2,11 @@
 <div class="lobby">
     <div class="chat">
         <div class="chatMessages">
-            <div class="chatList">
-                <li>Je m'appelle Mélenchon j'adore la France</li>
-                <li>ici naruto je viens détruire orichimaron</li>
-                <li>Je m'appelle Mélenchon j'adore la France</li>
-                <li>ici naruto je viens détruire orichimaron</li>
-                <li>Je m'appelle Mélenchon j'adore la France</li>
-                <li>ici naruto je viens détruire orichimaron</li>
-                <li>Je m'appelle Mélenchon j'adore la France</li>
-                <li>ici naruto je viens détruire orichimaron</li>
-                <li>Je m'appelle Mélenchon j'adore la France</li>
-                <li>ici naruto je viens détruire orichimaron</li>
-                <li>Je m'appelle Mélenchon j'adore la France</li>
-                <li>ici naruto je viens détruire orichimaron</li>
+            <div id="messagesContainer" class="chatList">
+                <li ng-repeat="msg in messages" ng-class="{status: msg.type == 'status'}">
+                    <span class="pseudo">{{msg.sender}}</span>
+                    <span>{{msg.text}}</span>
+                </li>
             </div>
             <form class="chatFooter" ng-submit="sendMessage($event)" ng-if="user">
                 <div class="inputGroup">
@@ -22,28 +14,12 @@
                     <input type="text" id="msgInput" ng-keypress="writeMessage()">
                 </div>
             </form>
+            <span id="isWritingField">{{isWriting}}</span>
         </div>
-        <div class="chatUsers">
+        <div class="chatUsers" ng-if="currentUsers.length != 0">
             <span>Connected users</span>
-            <div class="chatList">
-                <li>Jean Pierre Foucault</li>
-                <li>Astroboy</li>
-                <li>Jean Pierre Foucault</li>
-                <li>Astroboy</li>
-                <li>Jean Pierre Foucault</li>
-                <li>Astroboy</li>
-                <li>Jean Pierre Foucault</li>
-                <li>Astroboy</li>
-                <li>Jean Pierre Foucault</li>
-                <li>Astroboy</li>
-                <li>Jean Pierre Foucault</li>
-                <li>Astroboy</li>
-                <li>Jean Pierre Foucault</li>
-                <li>Astroboy</li>
-                <li>Jean Pierre Foucault</li>
-                <li>Astroboy</li>
-                <li>Jean Pierre Foucault</li>
-                <li>Astroboy</li>
+            <div id="loggedUsers" class="chatList">
+                <li ng-repeat="current in currentUsers">{{current.name}}</li>
             </div>
         </div>
     </div>

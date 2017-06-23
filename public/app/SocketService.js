@@ -22,5 +22,12 @@ function SocketService ($rootScope) {
                 });
             })
         }
+        ,
+        disconnect: function() {
+            console.log(socket.id);
+            socket.disconnect();
+            socket.connect();
+            // console.log(socket.id);
+        }
     };
 }

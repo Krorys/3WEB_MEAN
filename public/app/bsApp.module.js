@@ -33,21 +33,18 @@ angular.module('bsApp', ['ngCookies', 'ui.router'])
     $stateProvider
     .state('home', {
         url : '/home',
-        template : "<p>Landing page.</p>",
-        controller : 'LobbyCtrl'
+        template : "<p>Landing page.</p>"
     })
     
     .state('login', {
         url : '/login',
-        template : "<p>blablalogin</p>",
-        controller : 'LobbyCtrl'
+        template : "<p>blablalogin</p>"
     })
     
     .state('game', {
         url : '/game',
         // templateUrl : "game.html",
-        template : "<p>Game.</p>",
-        controller : 'LobbyCtrl'
+        template : "<p>Game.</p>"
     })
     
     .state('lobby', {
@@ -59,13 +56,12 @@ angular.module('bsApp', ['ngCookies', 'ui.router'])
     .state('leaderboards', {
         url : '/leaderboards',
         templateUrl : "leaderboards.html",
-        controller : 'LobbyCtrl'
+        controller : 'LeaderboardsCtrl'
     })
     
     .state('about', {
         url : '/about',
         // templateUrl : "about.html",
-        template : "<p>About.</p>",
-        controller : 'LobbyCtrl'
+        template : "<p>About.</p>"
     })
 }]);
