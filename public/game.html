@@ -11,12 +11,23 @@
         <div class="gameContainer">
             <div class="gameBoard">
                 <div class="row" ng-repeat="row in board" ng-mouseleave="cleanSelectedCells()">
-                    <div class="cell" ng-repeat="cell in row" ng-class="(cell.hoverState ? cell.hoverState : '') + ' ' + (cell.state ? cell.state : '') + ' ' + (cell.orientation ? cell.orientation : '') + ' ' + (cell.shipStart ? 'shipStart' : '') + ' ' + (cell.shipEnd ? 'shipEnd' : '')" ng-mouseover="cellHover(cell)" ng-click="placeShip()">
-                        {{cell.posX + '' + cell.posY}}
+                    <div class="cell" ng-repeat="cell in row" ng-class="
+                    (cell.hoverState ? cell.hoverState : '') + ' ' 
+                    + (cell.state ? cell.state : '') + ' ' 
+                    + (cell.orientation ? cell.orientation : '') + ' ' 
+                    + (cell.shipStart ? 'shipStart' : '') + ' ' 
+                    + (cell.shipEnd ? 'shipEnd' : '')" ng-mouseover="cellHover(cell)" ng-click="placeShip()">
+                        {{ cell.name[0] || '&nbsp;' }}
                     </div>
                 </div>
             </div>
-
+            <div class="gameActions">
+                <div class="actionBar">
+                    <button type="button" ng-click="resetBoard()" ng-disabled="!shipsPlaced.length > 0">Reset</button>
+                    <button type="button" ng-click="cancelShip()" ng-disabled="!shipsPlaced.length > 0">Cancel</button>
+                    <button type="button" ng-click="userReady()" ng-disabled="hasShipsLeft">Ready</button>
+                </div>
+            </div>
         </div>
         <div class="gameTab">
             <div class="gamePanel">

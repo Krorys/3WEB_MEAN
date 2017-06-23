@@ -21,25 +21,25 @@ function GameCtrl($scope, $rootScope, $http, socket) {
 
     $scope.shipsAvailable = {
         carriers: {
-            name: 'Carrier',
+            name: 'Carriers',
             size: 5,
             nb: 1,
             color: 'lime'
         },
         battleships: {
-            name: 'Battleship',
+            name: 'Battleships',
             size: 4,
             nb: 2,
             color: 'mediumorchid'
         },
         submarines: {
-            name: 'Submarine',
+            name: 'Submarines',
             size: 3,
             nb: 1,
             color: 'coral'
         },  
         destroyers: {
-            name: 'Destroyer',
+            name: 'Destroyers',
             size: 2,
             nb: 3,
             color: 'royalblue'
@@ -105,7 +105,48 @@ function GameCtrl($scope, $rootScope, $http, socket) {
             $scope.selectedCells.push(cell);
         }
     };
-    
+
+    $scope.hasShipsLeft = true;
+    $scope.checkShipsLeft = function() {
+        // Sums of every type of ships
+        var count = 0;
+        for (var key in $scope.shipsAvailable)
+            if ($scope.shipsAvailable.hasOwnProperty(key))
+                count += $scope.shipsAvailable[key].nb;
+        if (count == 0)
+            $scope.hasShipsLeft = false;
+    };
+
+    document.addEventListener('keydown', function(e) {
+         if(e.keyCode === 90 && e.ctrlKey && $scope.shipsPlaced.length > 0)
+            $scope.cancelShip();        
+    });
+
+
+    $scope.cancelShip = function() {
+        var cancelledShip = $scope.shipsPlaced.pop();
+
+        // Reset used cells
+        for (var i = 0; i < cancelledShip.cells.length; i++)
+            $scope.board[cancelledShip.cells[i].posX][cancelledShip.cells[i].posY] = {
+                posX: cancelledShip.cells[i].posX,
+                posY: cancelledShip.cells[i].posY,
+                state: '',
+                hoverState: ''
+            };
+
+        // Retrieve the right ship & add back one
+        for (var key in $scope.shipsAvailable)
+            if ($scope.shipsAvailable.hasOwnProperty(key))
+                if (key === cancelledShip.name.toLowerCase())
+                    $scope.shipsAvailable[key].nb++;
+    };
+
+    $scope.resetBoard = function() {
+        while($scope.shipsPlaced.length > 0)
+            $scope.cancelShip();
+    };
+
     $scope.placeShip = function() {
         if (!$scope.selectedShip || $scope.hoverError)
             return;
@@ -120,6 +161,7 @@ function GameCtrl($scope, $rootScope, $http, socket) {
             element.state = 'used';
             element.orientation = ($scope.isOrientationVertical ? 'vertical' : 'horizontal');
             element.shipStart = (i == 0 ? true : false);
+            element.name = $scope.selectedShip.name;
             element.shipEnd = (i + 1 == $scope.selectedCells.length ? true : false);
             newShip.cells.push(element);
         }
@@ -128,6 +170,7 @@ function GameCtrl($scope, $rootScope, $http, socket) {
         $scope.shipsPlaced.push(newShip);
         $scope.selectedShip.nb--;
         $scope.selectedShip = undefined;
+        $scope.checkShipsLeft();
     };
 
 }
