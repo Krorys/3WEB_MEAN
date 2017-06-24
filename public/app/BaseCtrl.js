@@ -7,7 +7,7 @@ function BaseCtrl ($scope, $http, $state, $transitions, $rootScope, AuthService,
         $scope.user = $rootScope.globals.currentUser;
         if ($scope.user)
             console.log($scope.user);
-    });  
+    });
 
     $scope.goToView = function(viewName) {
         viewName = viewName === undefined ? '' : viewName;
@@ -45,7 +45,6 @@ function BaseCtrl ($scope, $http, $state, $transitions, $rootScope, AuthService,
                 $scope.errorMsg = '';
                 $scope.loginData = {};
                 $scope.toggleModal();
-                $scope.isConnectedToChat = false;
                 $state.go('lobby', {}, {reload: true});
             }
             else

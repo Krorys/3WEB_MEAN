@@ -1,36 +1,23 @@
 angular.module('bsApp')
 .controller('LobbyCtrl', LobbyCtrl);
 
-function LobbyCtrl($scope, $rootScope, $timeout, $http, socket) {
+function LobbyCtrl($scope, $rootScope, $timeout, $http, $state, socket) {
     // console.log('lobby controller');
     socket.connect('/chat');
 
+    // Used for ng-repeat in view
     $scope.messages = [];
     $scope.currentUsers = [];
 
-    var init = function() {
-        $http.get('/api/messages/lasts')
-        .then(function(result) {
-            // console.log(result);
-            $scope.messages = result.data.concat($scope.messages);
-
-            $timeout(() => messagesContainer.scrollTop = messagesContainer.scrollHeight);
-        },
-        function(result) {
-            console.log('Error: ' + result);
-        });
-    };
-
     if ($scope.user)
-        if (!$scope.isConnectedToChat)
-            socket.emit('logIn', $scope.user.username);
+        socket.emit('logIn', $scope.user.username);
     if ($scope.user === undefined) {
-        init();
+        getLastMessages();
         socket.emit('visit');
     }
 
+    // Used to scroll
     var messagesContainer = document.getElementById('messagesContainer');
-    var usersList = document.getElementById('loggedUsers');
 
     $scope.sendMessage = function(e) {
         var messageInput = document.getElementById('msgInput');
@@ -73,19 +60,44 @@ function LobbyCtrl($scope, $rootScope, $timeout, $http, socket) {
         }, 1000);
     };
 
+    $scope.createGame = function() {
+        var newGame = {
+            creator: $scope.user.username,
+            status: 'open'
+        };
+
+        $http.post('/api/games/add', newGame)
+        .then(function(result) {
+            console.log(result);
+            $state.go('game', {id: result.data.id, status: 'open', creator: true});
+        },
+        function(result) {
+            console.log('Error: ' + result);
+        });
+    };
+
+    function getLastMessages() {
+        $http.get('/api/messages/lasts')
+        .then(function(result) {
+            // console.log(result);
+            $scope.messages = result.data.concat($scope.messages);
+            $timeout(() => messagesContainer.scrollTop = messagesContainer.scrollHeight);
+        },
+        function(result) {
+            console.log('Error: ' + result);
+        });
+    }
+
     // SOCKETS RECEIVED
 
     socket.on('logInSuccess', function () {
-        if ($scope.isConnectedToChat)
-            $scope.isConnectedToChat = true;
-        init();
+        getLastMessages();
         // console.log("Successfully logged in as  :", $scope.user.username);
     });
 
     socket.on('displayMsg', function (message) {
         // console.log("Received :", message);
-        // if ($scope.user !== undefined && message.type == 'status' && message.sender == $scope.user.username)
-        //     init();
+
         $scope.messages.push(message);
         // Using $timeout to wait for DOM to be rendered
         $timeout(() => messagesContainer.scrollTop = messagesContainer.scrollHeight);

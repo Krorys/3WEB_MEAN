@@ -1,6 +1,6 @@
 angular.module('bsApp', ['ngCookies', 'ui.router'])
 
-.run(function($rootScope, $location, $state, AuthService, $transitions, $cookies, $http) {
+.run(function($rootScope, $location, $state, $transitions, $cookies, $http) {
     /*
     $rootScope.$on('$stateChangeStart', 
     function(event, toState, toParams, fromState, fromParams) { 
@@ -13,21 +13,17 @@ angular.module('bsApp', ['ngCookies', 'ui.router'])
         $http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.globals.currentUser.authdata;
     }
 
-    $transitions.onStart({}, function(trans) {
-        var auth = trans.injector().get('AuthService');
-        var restrictedPage = !$state.includes('login');
+    $transitions.onStart({to: 'game'}, function(trans) {
         var loggedIn = $rootScope.globals.currentUser;
-        if (restrictedPage && !loggedIn) {
+        if (!loggedIn) {
             console.log('no cookies & unauth state(page)');
-            // $state.go('login');
+            return $state.target('lobby');
         }
-        if (!auth.getIsAuthenticated())
-            console.log('not auth');
     });
         
 })
     
-.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
+.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider, $http, $stateParams) {
     $urlRouterProvider.otherwise('/home');
     
     $stateProvider
@@ -42,8 +38,26 @@ angular.module('bsApp', ['ngCookies', 'ui.router'])
     })
     
     .state('game', {
-        url : '/game',
+        url : '/game/:id',
+        params: {
+            status: null,
+            creator: null
+        },
         templateUrl : "game.html",
+        resolve: {
+            isGameValid: function($http, $state, $stateParams) {
+                return $http.get('/api/games/' + $stateParams.id)
+                .then(function(result) {
+                    if (!result.data.success)
+                        $state.go('lobby');
+                    else
+                        return result.data.game;
+                },
+                function(result) {
+                    console.log('Error: ' + result);
+                });
+            }
+        },
         controller : 'GameCtrl'
     })
     

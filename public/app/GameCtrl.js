@@ -1,8 +1,10 @@
 angular.module('bsApp')
 .controller('GameCtrl', GameCtrl);
 
-function GameCtrl($scope, $rootScope, $http, socket) {
+function GameCtrl($scope, $rootScope, $http, $state, $stateParams, socket, isGameValid) {
 
+    console.log(isGameValid);
+    
     socket.connect('/game');
     
     var boardLength = 9;
@@ -169,5 +171,17 @@ function GameCtrl($scope, $rootScope, $http, socket) {
         $scope.selectedShip = undefined;
         $scope.checkShipsLeft();
     };
+
+    function checkIfGameExists() {
+        $http.get('/api/games/' + $stateParams.id)
+        .then(function(result) {
+            if (!result.data.success)
+                $state.go('lobby');
+            console.log(result.data);
+        },
+        function(result) {
+            console.log('Error: ' + result);
+        });
+    }
 
 }

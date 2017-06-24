@@ -1,5 +1,6 @@
 // api ---------------------------------------------------------------------
 var express = require('express');
+var ObjectId = require('mongodb').ObjectId; 
 var router = express.Router();
 var db = require('../db')
 
@@ -22,11 +23,11 @@ router.post('/users/add', function(req, res) {
     users.findOne({username: req.body.username})
     .then(function(result) {
         if (result)
-            return res.send({success: false, msg: 'User already exists.'});
+            return res.send({success: false, msg: 'Username taken.'});
 
         users.insertOne(req.body);
         console.log('New user added: ', req.body.username);
-        res.send({success: true, msg: 'User registered successfully.'});  
+        res.send({success: true, msg: 'User successfully registered.'});  
     });
 });
 
@@ -53,7 +54,7 @@ router.post('/messages/add', function(req, res) {
     var messages = db.get().collection('messages');
     messages.insertOne(req.body);
     // console.log('New message added : ', req.body.text);
-    res.send({success: true, msg: 'Message registered successfully.'});  
+    res.send({success: true, msg: 'Message successfully registered.'});  
 });
 
 /////////////// GAMES
@@ -66,9 +67,21 @@ router.get('/games/list', function(req, res) {
 
 router.post('/games/add', function(req, res) {
     var games = db.get().collection('games');
-    games.insertOne(req.body);
-    // console.log('New game created : ', req.body.text);
-    res.send({success: true, msg: 'Game registered successfully.'});  
+    games.insertOne(req.body, function(err, doc) {
+        res.send({success: true, id: doc.insertedId, msg: 'Game successfully registered.'});  
+        // console.log('New game created : ', req.body.text);
+    });
+});
+
+router.get('/games/:gameId', function(req, res) {
+    var games = db.get().collection('games');
+    games.findOne({_id: ObjectId(req.params.gameId)})
+    .then(function(result) {
+        // console.log(result);
+        if (!result)
+            return res.send({success: false, msg: 'Game doesn\'t exists.'});
+        res.send({success: true, msg: 'Game successfully retrieved.', game: result});  
+    });
 });
 
 module.exports = router;

@@ -3,10 +3,8 @@ angular.module('bsApp')
 
 function AuthService($http, $cookies, $rootScope) {
 
-    var isAuthenticated = false;
     var service = {};
     service.Login = login;
-    service.getIsAuthenticated = getIsAuthenticated;
     service.SetCredentials = SetCredentials;
     service.ClearCredentials = ClearCredentials;
     return service;
@@ -23,15 +21,10 @@ function AuthService($http, $cookies, $rootScope) {
             else
                 response = { success: false, msg: 'Can\'t find that username.' };
 
-            isAuthenticated = response.success; 
             callback(response);
         }, function(err) {
             return { success: false, msg: err };
         }); 
-    }
-
-    function getIsAuthenticated() {
-        return isAuthenticated;
     }
 
     function SetCredentials(user) {
