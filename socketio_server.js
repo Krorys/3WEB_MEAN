@@ -17,6 +17,28 @@ module.exports = function(io) {
         socket.on('disconnect', function() {
             console.log('User disconnected from /game');
         });
+
+        socket.on('opponentJoin', function(user) {
+            
+        });
+
+        /*
+        socket.on('', function() {
+
+        });
+
+        socket.on('', function() {
+
+        });
+
+        socket.on('', function() {
+
+        });
+
+        socket.on('', function() {
+
+        });
+        */
     });
 
     var writingUsers = [];

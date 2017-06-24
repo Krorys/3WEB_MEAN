@@ -4,8 +4,11 @@ angular.module('bsApp')
 function GameCtrl($scope, $rootScope, $http, $state, $stateParams, socket, isGameValid) {
 
     console.log(isGameValid);
+    $scope.game = isGameValid;
     
     socket.connect('/game');
+    if ($scope.game.creator !== $scope.user.username)
+        opponentJoin();
     
     var boardLength = 9;
     $scope.board = [];
@@ -178,6 +181,19 @@ function GameCtrl($scope, $rootScope, $http, $state, $stateParams, socket, isGam
             if (!result.data.success)
                 $state.go('lobby');
             console.log(result.data);
+        },
+        function(result) {
+            console.log('Error: ' + result);
+        });
+    }
+
+    function opponentJoin() {
+        var update = { opponent: $scope.user.username, status: 'closed' };
+        $http.post('/api/games/' + $scope.game._id, update)
+        .then(function(result) {
+            if (result.success)
+                socket.emit('opponentJoin', $scope.user.username);
+            // console.log(result);
         },
         function(result) {
             console.log('Error: ' + result);

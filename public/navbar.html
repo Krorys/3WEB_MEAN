@@ -7,6 +7,7 @@
     <div class="navbarRight">
         <li ng-click="toggleModal('login')" ng-if="!user">Log In</li>
         <li ng-click="toggleModal('register')" ng-if="!user">Register</li>
+        <li ng-if="user">Connected as {{user.username}}</li>
         <li ng-click="logout()" ng-if="user">Log out</li>
         <li ui-sref='about'>About</li>
     </div>
