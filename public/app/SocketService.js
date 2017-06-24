@@ -2,8 +2,16 @@ angular.module('bsApp')
     .factory('socket', SocketService);
 
 function SocketService ($rootScope) {
-    var socket = io.connect();
+
+    // var socket = io.connect();
+    var socket;
+
     return {
+        connect: function(namespace, callback) {
+            if (socket)
+                socket.disconnect();
+            socket = (namespace) ? io.connect(namespace) : io.connect();
+        },
         on: function (eventName, callback) {
             socket.on(eventName, function () {  
                 var args = arguments;
@@ -24,10 +32,9 @@ function SocketService ($rootScope) {
         }
         ,
         disconnect: function() {
-            console.log(socket.id);
+            // console.log(socket.id);
             socket.disconnect();
             socket.connect();
-            // console.log(socket.id);
         }
     };
 }

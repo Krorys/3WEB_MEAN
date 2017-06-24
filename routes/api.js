@@ -56,4 +56,19 @@ router.post('/messages/add', function(req, res) {
     res.send({success: true, msg: 'Message registered successfully.'});  
 });
 
+/////////////// GAMES
+router.get('/games/list', function(req, res) {
+    var games = db.get().collection('games');
+    games.find().toArray(function(err, results) {
+        res.send(results);
+    });
+});
+
+router.post('/games/add', function(req, res) {
+    var games = db.get().collection('games');
+    games.insertOne(req.body);
+    // console.log('New game created : ', req.body.text);
+    res.send({success: true, msg: 'Game registered successfully.'});  
+});
+
 module.exports = router;

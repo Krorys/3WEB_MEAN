@@ -15,6 +15,12 @@
                 </div>
             </form>
             <span id="isWritingField">{{isWriting}}</span>
+            <div class="gameActions" ng-if="user">
+                <div class="actionBar">
+                    <button type="button" ng-click="" ng-disabled="">Create Game</button>
+                    <button type="button" ng-click="" ng-disabled="">Join Game</button>
+                </div>
+            </div>
         </div>
         <div class="chatUsers" ng-if="currentUsers.length != 0">
             <span>Connected users</span>

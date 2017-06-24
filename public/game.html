@@ -35,7 +35,7 @@
                     <div class="shipRow">
                         <span>Selected ship : {{selectedShip.name || 'none'}}</span>
                         <span>Orientation: {{(isOrientationVertical) ? 'Vertical' : 'Horizontal'}}</span>
-                        <button type="button" ng-click="swapOrientation()">Swap orientation</button>
+                        <button type="button" ng-click="swapOrientation()">Swap</button>
                     </div>
                     <div class="shipRow" ng-repeat="ship in shipsAvailable">
                         <button type="button" ng-click="pickShip(ship)" ng-disabled="ship.nb < 1">Pick one</button>

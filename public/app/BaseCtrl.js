@@ -19,7 +19,7 @@ function BaseCtrl ($scope, $http, $state, $transitions, $rootScope, AuthService,
         if (tab) {
             $scope.isRegisterForm = tab === 'register' ? false : true;
             $scope.swapForms();
-            // document.querySelector('.modalForm input').focus();s
+            // document.querySelector('.modalForm input').focus();
         }
         $scope.modalShow = !$scope.modalShow;
     };
@@ -47,9 +47,6 @@ function BaseCtrl ($scope, $http, $state, $transitions, $rootScope, AuthService,
                 $scope.toggleModal();
                 $scope.isConnectedToChat = false;
                 $state.go('lobby', {}, {reload: true});
-                // socket.emit('logIn', $scope.loginData.username);
-                // $state.reload();
-                // window.location.reload();
             }
             else
                 $scope.errorMsg = res.msg;
@@ -59,9 +56,7 @@ function BaseCtrl ($scope, $http, $state, $transitions, $rootScope, AuthService,
     $scope.logout = function() {
         AuthService.ClearCredentials(function() {
             socket.disconnect();
-            // socket.emit('logOut', $scope.loginData.username);
             $state.reload();
-            // window.location.reload();
         });
     }
 

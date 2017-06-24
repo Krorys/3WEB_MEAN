@@ -2,6 +2,8 @@ angular.module('bsApp')
 .controller('GameCtrl', GameCtrl);
 
 function GameCtrl($scope, $rootScope, $http, socket) {
+
+    socket.connect('/game');
     
     var boardLength = 9;
     $scope.board = [];
@@ -48,13 +50,8 @@ function GameCtrl($scope, $rootScope, $http, socket) {
 
     $scope.shipsPlaced = [];
 
-    $scope.pickShip = function(ship) {
-        $scope.selectedShip = ship;
-    };
-
-    $scope.swapOrientation = function() {
-        $scope.isOrientationVertical = ! $scope.isOrientationVertical;
-    };
+    $scope.pickShip = (ship) => $scope.selectedShip = ship;
+    $scope.swapOrientation = () => $scope.isOrientationVertical = ! $scope.isOrientationVertical;
 
     $scope.selectedCells = [];
     $scope.cleanSelectedCells = function() {

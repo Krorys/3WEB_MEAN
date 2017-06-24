@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 var MongoClient = require('mongodb').MongoClient;
 var sassMiddleware = require('node-sass-middleware');
 var Buffer = require('buffer');
+var colors = require('colors');
 
 var index = require('./routes/index');
 var api = require('./routes/api');
@@ -26,11 +27,10 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(sassMiddleware({
-    /* Options */
+app.use(sassMiddleware( {
     src: __dirname,
     dest: path.join(__dirname, 'public'),
-    debug: true,
+    // debug: true,
     outputStyle: 'compressed',
 }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -79,20 +79,32 @@ Array.prototype.remove = function() {
     return this;
 };
 
+var gameIO = io.of('/game');
+gameIO.on('connection', function(socket) {
+    console.log('User connected in /game');
+
+    socket.on('disconnect', function() {
+        console.log('User disconnected from /game');
+    });
+});
+
 var writingUsers = [];
 var currentUsers = [];
 
-io.on('connection', function(socket) {
-    console.log('User connected');
+var chatIO = io.of('/chat');
+chatIO.on('connection', function(socket) {
+    console.log('User connected in /chat');
     var loggedUser;
 
-    function logout() {
-        console.log('User disconnected', loggedUser);
-        if (loggedUser == null)
+    socket.on('disconnect', function () {
+        console.log('User disconnected from /chat', loggedUser);
+
+        if (loggedUser === undefined || currentUsers.find((user) => user.name === loggedUser.name))
             return;
+
         currentUsers.remove(loggedUser);
-        
-        io.emit('usersList', currentUsers);
+        chatIO.emit('usersList', currentUsers);
+
         var message = {
             sender: loggedUser.name,
             at : new Date().toISOString(),
@@ -100,21 +112,25 @@ io.on('connection', function(socket) {
             type: 'status'
         };
         socket.broadcast.emit('displayMsg', message);
-    }
-
-    socket.on('disconnect', logout);
-    socket.on('logOut', logout);
+    });
 
     socket.on('logIn', function (username) {
         // console.log('Logged as :', username);
+        var alreadyLogged = currentUsers.find((user) => user.name === username);
+
+        socket.emit('logInSuccess');
+        if (alreadyLogged) {
+            socket.emit('usersList', currentUsers);
+            return;
+        }
+
         loggedUser = {
             id: socket.id,
             name: username
         };
         currentUsers.push(loggedUser);
         
-        socket.emit('logInSuccess');
-        io.emit('usersList', currentUsers);
+        chatIO.emit('usersList', currentUsers);
         
         var message = {
             sender: loggedUser.name,
@@ -122,7 +138,7 @@ io.on('connection', function(socket) {
             text : 'has joined.',
             type: 'status'
         };
-        io.emit('displayMsg', message);
+        chatIO.emit('displayMsg', message);
     });
 
     socket.on('visit', function() {
@@ -131,7 +147,7 @@ io.on('connection', function(socket) {
 
     socket.on('sendMsg', function (message) {
         // console.log('Message sent :', message);
-        io.emit('displayMsg', message);
+        chatIO.emit('displayMsg', message);
     });
 
     socket.on('writingMsg', function (user) {
@@ -144,7 +160,7 @@ io.on('connection', function(socket) {
     socket.on('stopWritingMsg', function (user) {
         // console.log('Stopped writing :', user);
         writingUsers.splice(writingUsers.indexOf(user), 1);
-        io.emit('displayIsWriting', writingUsers);
+        chatIO.emit('displayIsWriting', writingUsers);
     });
 });
 

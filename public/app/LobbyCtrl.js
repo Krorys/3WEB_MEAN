@@ -1,8 +1,9 @@
 angular.module('bsApp')
 .controller('LobbyCtrl', LobbyCtrl);
 
-function LobbyCtrl($scope, $rootScope, $http, socket) {
+function LobbyCtrl($scope, $rootScope, $timeout, $http, socket) {
     // console.log('lobby controller');
+    socket.connect('/chat');
 
     $scope.messages = [];
     $scope.currentUsers = [];
@@ -12,6 +13,8 @@ function LobbyCtrl($scope, $rootScope, $http, socket) {
         .then(function(result) {
             // console.log(result);
             $scope.messages = result.data.concat($scope.messages);
+
+            $timeout(() => messagesContainer.scrollTop = messagesContainer.scrollHeight);
         },
         function(result) {
             console.log('Error: ' + result);
@@ -40,11 +43,11 @@ function LobbyCtrl($scope, $rootScope, $http, socket) {
             at: new Date().toISOString(),
             text: messageInput.value,
             type: 'message'
-        }
+        };
 
         $http.post('/api/messages/add', message)
         .then(function(data) {
-            console.log(data);
+            // console.log(data);
             socket.emit('sendMsg', message);
             socket.emit('stopWritingMsg', $scope.user.username);
             messageInput.value = '';
@@ -70,18 +73,22 @@ function LobbyCtrl($scope, $rootScope, $http, socket) {
         }, 1000);
     };
 
+    // SOCKETS RECEIVED
+
     socket.on('logInSuccess', function () {
         if ($scope.isConnectedToChat)
             $scope.isConnectedToChat = true;
+        init();
         // console.log("Successfully logged in as  :", $scope.user.username);
     });
 
     socket.on('displayMsg', function (message) {
-        //console.log("Received :", message);
-        if ($scope.user !== undefined && message.type == 'status' && message.sender == $scope.user.username)
-            init();
+        // console.log("Received :", message);
+        // if ($scope.user !== undefined && message.type == 'status' && message.sender == $scope.user.username)
+        //     init();
         $scope.messages.push(message);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        // Using $timeout to wait for DOM to be rendered
+        $timeout(() => messagesContainer.scrollTop = messagesContainer.scrollHeight);
     });
 
     socket.on('displayIsWriting', function (users) {
