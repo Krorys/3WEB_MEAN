@@ -1,13 +1,7 @@
-<p>Game X : {{game.creator}} VS {{game.opponent}}</p>
+<p>{{gameTitle}}</p>
 
 <div class="contentEdge">
     <div class="content">
-        <!--<div class="gameBoard">
-            <div class="cell" ng-repeat="x in board"></div>
-        </div>-->
-        <!--<table class="gameBoard">
-            <td class="cell" ng-repeat="x in board"></td>
-        </table>-->
         <div class="gameContainer">
             <div class="gameBoard">
                 <div class="row" ng-repeat="row in board" ng-mouseleave="cleanSelectedCells()">

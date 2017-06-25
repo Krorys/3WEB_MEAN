@@ -69,7 +69,7 @@ function LobbyCtrl($scope, $rootScope, $timeout, $http, $state, socket) {
         $http.post('/api/games/add', newGame)
         .then(function(result) {
             console.log(result);
-            $state.go('game', {id: result.data.id, status: 'open', creator: true});
+            $state.go('game', {id: result.data.id});
         },
         function(result) {
             console.log('Error: ' + result);

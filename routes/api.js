@@ -87,9 +87,13 @@ router.get('/games/:gameId', function(req, res) {
 router.post('/games/:gameId', function(req, res) {
     var games = db.get().collection('games');
     // console.log(req.body);
-    games.updateOne({_id: ObjectId(req.params.gameId)}, {$set: req.body });
-    res.send({success: true, msg: 'Game successfully edited.'});  
-    // console.log('Game edited : ', req.body);
+    games.findOneAndUpdate(
+        { "_id": ObjectId(req.params.gameId)}, {$set: req.body }, {returnOriginal: false}, 
+        function(err, doc) {
+            res.send({success: true, msg: 'Game successfully edited.', game: doc.value});  
+        // console.log('Game edited : ', req.body);
+        }
+    );
 });
 
 module.exports = router;

@@ -39,10 +39,6 @@ angular.module('bsApp', ['ngCookies', 'ui.router'])
     
     .state('game', {
         url : '/game/:id',
-        params: {
-            status: null,
-            creator: null
-        },
         templateUrl : "game.html",
         resolve: {
             isGameValid: function($http, $state, $stateParams) {

@@ -3,12 +3,17 @@ angular.module('bsApp')
 
 function GameCtrl($scope, $rootScope, $http, $state, $stateParams, socket, isGameValid) {
 
-    console.log(isGameValid);
+    // console.log(isGameValid);
     $scope.game = isGameValid;
-    
+
+    if ($scope.game.status === 'closed' && $scope.game.opponent !== $scope.user.username)
+        $state.go('lobby');
+
     socket.connect('/game');
-    if ($scope.game.creator !== $scope.user.username)
-        opponentJoin();
+    socket.emit('userJoin', {game: isGameValid, username: $scope.user.username});
+
+    updateTitle();
+
     
     var boardLength = 9;
     $scope.board = [];
@@ -175,29 +180,31 @@ function GameCtrl($scope, $rootScope, $http, $state, $stateParams, socket, isGam
         $scope.checkShipsLeft();
     };
 
-    function checkIfGameExists() {
-        $http.get('/api/games/' + $stateParams.id)
-        .then(function(result) {
-            if (!result.data.success)
-                $state.go('lobby');
-            console.log(result.data);
-        },
-        function(result) {
-            console.log('Error: ' + result);
-        });
+    function updateTitle() {
+        if ($scope.game.status === 'open')
+            $scope.gameTitle = 'Game created by : ' + $scope.game.creator + '. Waiting for an opponent...';
+        else
+            $scope.gameTitle = 'Game X : ' + $scope.game.creator + ' VS ' + $scope.game.opponent;
     }
 
-    function opponentJoin() {
-        var update = { opponent: $scope.user.username, status: 'closed' };
-        $http.post('/api/games/' + $scope.game._id, update)
+    // SOCKETS RECEIVED 
+
+    socket.on('closeGame', function () {
+        var fields = { opponent: $scope.user.username, status: 'closed' };
+        $http.post('/api/games/' + $scope.game._id, fields)
         .then(function(result) {
-            if (result.success)
-                socket.emit('opponentJoin', $scope.user.username);
-            // console.log(result);
+            if (result.data.success)
+                socket.emit('gameUpdated', result.data.game);
+            // console.log(result.data.game);
         },
         function(result) {
             console.log('Error: ' + result);
         });
-    }
+    });
+
+    socket.on('overwriteGame', function (game) {
+        $scope.game = game;
+        updateTitle();
+    });
 
 }

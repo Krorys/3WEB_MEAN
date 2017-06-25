@@ -5,8 +5,8 @@ function BaseCtrl ($scope, $http, $state, $transitions, $rootScope, AuthService,
 
     $transitions.onStart({}, function(trans) {
         $scope.user = $rootScope.globals.currentUser;
-        if ($scope.user)
-            console.log($scope.user);
+        // if ($scope.user)
+            // console.log($scope.user);
     });
 
     $scope.goToView = function(viewName) {
