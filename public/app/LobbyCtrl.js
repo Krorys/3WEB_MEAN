@@ -62,7 +62,7 @@ function LobbyCtrl($scope, $rootScope, $timeout, $http, $state, socket) {
 
     $scope.createGame = function() {
         var newGame = {
-            creator: $scope.user.username,
+            creator: {username: $scope.user.username},
             status: 'open'
         };
 

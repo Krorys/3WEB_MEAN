@@ -33,8 +33,11 @@ function SocketService ($rootScope) {
         ,
         disconnect: function() {
             // console.log(socket.id);
-            socket.disconnect();
-            socket.connect();
+            // If user logout from a page without socket (!lobby && !game)
+            if (socket) {
+                socket.disconnect();
+                socket.connect();
+            }
         }
     };
 }

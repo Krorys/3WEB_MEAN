@@ -6,30 +6,16 @@ function GameCtrl($scope, $rootScope, $http, $state, $stateParams, socket, isGam
     // console.log(isGameValid);
     $scope.game = isGameValid;
 
-    if ($scope.game.status === 'closed' && $scope.game.opponent !== $scope.user.username)
+    if ($scope.game.status === 'closed' && $scope.game.creator.username !== $scope.user.username && $scope.game.opponent.username !== $scope.user.username)
         $state.go('lobby');
 
     socket.connect('/game');
     socket.emit('userJoin', {game: isGameValid, username: $scope.user.username});
 
     updateTitle();
-
-    
-    var boardLength = 9;
     $scope.board = [];
-    for (var i = 0; i < boardLength; i++) {
-        $scope.board.push([]);
-        for (var j = 0; j < boardLength; j++) {
-            var cell = {
-                posX: i,
-                posY: j,
-                state: '', // used || alive || destroyed
-                hoverState: ''
-            };
-            $scope.board[i].push(cell);
-        }
-    }
-    // console.log($scope.board);
+    fillBoard($scope.board);
+    $scope.isPlayerBoardShown = true;
 
     $scope.shipsAvailable = {
         carriers: {
@@ -176,21 +162,39 @@ function GameCtrl($scope, $rootScope, $http, $state, $stateParams, socket, isGam
         $scope.selectedCells = [];
         $scope.shipsPlaced.push(newShip);
         $scope.selectedShip.nb--;
-        $scope.selectedShip = undefined;
+        if ($scope.selectedShip.nb < 1)
+            $scope.selectedShip = undefined;
         $scope.checkShipsLeft();
     };
 
-    function updateTitle() {
-        if ($scope.game.status === 'open')
-            $scope.gameTitle = 'Game created by : ' + $scope.game.creator + '. Waiting for an opponent...';
-        else
-            $scope.gameTitle = 'Game X : ' + $scope.game.creator + ' VS ' + $scope.game.opponent;
-    }
+    $scope.ready = function() {
+        console.log($scope.shipsPlaced);
+        socket.emit('userReady', {ships: $scope.shipsPlaced, username: $scope.user.username, game: $scope.game});
+        $scope.isReady = true;
+    };
 
-    // SOCKETS RECEIVED 
+    $scope.swapBoards = function() {
+        $scope.isPlayerBoardShown = !$scope.isPlayerBoardShown;
+    };
 
-    socket.on('closeGame', function () {
-        var fields = { opponent: $scope.user.username, status: 'closed' };
+    $scope.cellHoverInGame = function(cell) {
+        if ($scope.canPlay) {
+            $scope.cleanSelectedCells();
+            if (cell.state == 'checked' || cell.state == 'hit')
+                return;
+            cell.hoverState = 'select';
+            $scope.selectedCells.push(cell);
+        }
+    };
+
+    $scope.shoot = function(cell) {
+        if ($scope.canPlay) {
+            socket.emit('shoot', cell);
+            $scope.canPlay = false;
+        }
+    };
+
+    function updateGame(fields) {
         $http.post('/api/games/' + $scope.game._id, fields)
         .then(function(result) {
             if (result.data.success)
@@ -200,11 +204,86 @@ function GameCtrl($scope, $rootScope, $http, $state, $stateParams, socket, isGam
         function(result) {
             console.log('Error: ' + result);
         });
+    }
+
+    function updateTitle() {
+        if ($scope.game.status === 'open')
+            $scope.gameTitle = 'Game created by : ' + $scope.game.creator.username + '. Waiting for an opponent...';
+        else
+            $scope.gameTitle = 'Game X : ' + $scope.game.creator.username + ' VS ' + $scope.game.opponent.username;
+    }
+
+    function fillBoard(board) {
+        var boardLength = 9;
+        for (var i = 0; i < boardLength; i++) {
+            board.push([]);
+            for (var j = 0; j < boardLength; j++) {
+                var cell = {
+                    posX: i,
+                    posY: j,
+                    state: '', // used || alive || destroyed
+                    hoverState: ''
+                };
+                board[i].push(cell);
+            }
+        }
+        // console.log(board);
+    }
+
+    function changePlayerTurn(turn) {
+        $scope.canPlay = (turn === $scope.user.username);
+        $scope.playerTurn = turn;
+    }
+
+    // SOCKETS RECEIVED 
+    /*
+    socket.on('updateGame', function () {
+        var fields = { opponent: $scope.user.username, status: 'closed' };
+        $http.post('/api/games/' + $scope.game._id, fields)
+        .then(function(result) {
+            if (result.data.success)
+                socket.emit('gameClosed', result.data.game);
+            // console.log(result.data.game);
+        },
+        function(result) {
+            console.log('Error: ' + result);
+        });
+    });
+    */
+
+    socket.on('updateGameInDb', function(fields) {
+        updateGame(fields);
     });
 
     socket.on('overwriteGame', function (game) {
         $scope.game = game;
         updateTitle();
+    });
+
+    socket.on('notifyReady', function(name) {
+        console.log(name + ' is ready');
+        // new msg dans le chat avec name is ready
+    });
+    
+    socket.on('gameStart', function(playerTurn) {
+        console.log('game start');
+        $scope.guessBoard = [];
+        fillBoard($scope.guessBoard);
+        $scope.swapBoards();
+        $scope.gameStarted = true;
+        // $scope.canPlay = (playerTurn === $scope.user.username);
+        changePlayerTurn(playerTurn);
+    });
+
+    socket.on('turnEnded', function(turnResult) {
+        // new msg dans le chat has hit or not
+        changePlayerTurn(turnResult.turn);
+        if (turnResult.hit)
+            var displayMsg = $scope.playerTurn + ' has hit on position [' + turnResult.cell.posX + ',' + turnResult.cell.posY + '] !';
+        else
+            var displayMsg = $scope.playerTurn + ' missed on position [' + turnResult.cell.posX + ',' + turnResult.cell.posY + '] !';
+        console.log(displayMsg);
+        
     });
 
 }

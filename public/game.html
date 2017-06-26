@@ -3,7 +3,7 @@
 <div class="contentEdge">
     <div class="content">
         <div class="gameContainer">
-            <div class="gameBoard">
+            <div class="gameBoard" ng-if="isPlayerBoardShown">
                 <div class="row" ng-repeat="row in board" ng-mouseleave="cleanSelectedCells()">
                     <div class="cell" ng-repeat="cell in row" ng-class="
                     (cell.hoverState ? cell.hoverState : '') + ' ' 
@@ -15,16 +15,35 @@
                     </div>
                 </div>
             </div>
-            <div class="gameActions">
+            <div class="gameBoard" ng-if="!isPlayerBoardShown">
+                <div class="row" ng-repeat="row in guessBoard" ng-mouseleave="cleanSelectedCells()">
+                    <div class="cell" ng-repeat="cell in row" ng-class="
+                    (cell.hoverState ? cell.hoverState : '') + ' ' 
+                    + (cell.state ? cell.state : '') + ' ' 
+                    + (cell.orientation ? cell.orientation : '') + ' ' 
+                    + (cell.shipStart ? 'shipStart' : '') + ' ' 
+                    + (cell.shipEnd ? 'shipEnd' : '')" ng-mouseover="cellHoverInGame(cell)" ng-click="shoot(cell)">
+                        {{ cell.name[0] || '&nbsp;' }}
+                    </div>
+                </div>
+            </div>
+            <div class="gameActions" ng-if="!gameStarted">
                 <div class="actionBar">
                     <button type="button" ng-click="resetBoard()" ng-disabled="!shipsPlaced.length > 0">Reset</button>
                     <button type="button" ng-click="cancelShip()" ng-disabled="!shipsPlaced.length > 0">Cancel</button>
-                    <button type="button" ng-click="userReady()" ng-disabled="hasShipsLeft">Ready</button>
+                    <button type="button" ng-click="ready()" ng-disabled="hasShipsLeft || isReady">Ready</button>
+                </div>
+            </div>
+            <div class="gameActions" ng-if="gameStarted">
+                <div class="actionBar">
+                    <button type="button" ng-click="swapBoards()">Swap boards</button>
+                    <button type="button" ng-click="" ng-disabled="canPlay">Shoot</button>
+                    <button type="button" ng-click="" ng-disabled="">Surrender</button>
                 </div>
             </div>
         </div>
         <div class="gameTab">
-            <div class="gamePanel">
+            <div class="gamePanel" ng-if="!gameStarted">
                 <div class="shipList">
                     <div class="shipRow">
                         <span>Selected ship : {{selectedShip.name || 'none'}}</span>
