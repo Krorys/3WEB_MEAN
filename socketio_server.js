@@ -5,12 +5,6 @@ module.exports = function(io) {
 
         var gameInfos;
         var isCreator;
-        var creator = {
-            name: undefined
-        };
-        var opponent = {
-            name: undefined
-        };
         var playerTurn;
 
         socket.on('disconnect', function() {
@@ -21,6 +15,7 @@ module.exports = function(io) {
             gameInfos = infos.game;
             socket.join(gameInfos._id);
             isCreator = infos.username === infos.game.creator.username;
+            playerTurn = infos.game.creator.username;
             if (!isCreator) {
                 var fields = { opponent: {username: infos.username}, status: 'closed' };
                 socket.emit('updateGameInDb', fields);
@@ -29,11 +24,16 @@ module.exports = function(io) {
 
         socket.on('gameUpdated', function(game) {
             gameInfos = game;
-            gameIO.to(gameInfos._id).emit('overwriteGame', gameInfos);
+            socket.broadcast.to(game._id).emit('updateGameInfo', game);
+            gameIO.to(game._id).emit('overwriteGame', game);
+        });
+
+        socket.on('gameInfosUpdated', function(game) {
+            gameInfos = game;
         });
 
         socket.on('userReady', function(infos) {
-            gameInfos = infos.game;
+            // gameInfos = infos.game;
             var fields;
             if (isCreator)
                 fields = {"creator.ready": true, "creator.ships": infos.ships};
@@ -46,51 +46,14 @@ module.exports = function(io) {
             
             if (bothReady) {
                 fields.status = 'playing';
-                creator.name = (isCreator) ? gameInfos.creator.username : gameInfos.opponent.username;
-                opponent.name = (isCreator) ? gameInfos.opponent.username : gameInfos.creator.username;
-                playerTurn = creator.name;
                 gameIO.to(gameInfos._id).emit('gameStart', playerTurn);
             }
 
             socket.emit('updateGameInDb', fields);
-            /*
-            socket.ready = true;
-            gameIO.to(gameInfos._id).clients((error, clients) => {
-                var count = 0;
-                for (var i = 0; i < clients.length; i++)
-                    if (gameIO.connected[clients[i]].ready)
-                        count++;
-                if (count == 2) {
-                    var fields = { status: 'playing' };
-                    socket.emit('updateGameInDb', fields);
-                    creator.name = (isCreator) ? gameInfos.creator : gameInfos.opponent;
-                    opponent.name = (isCreator) ? gameInfos.opponent : gameInfos.creator;
-                    playerTurn = creator.name;
-                    gameIO.to(gameInfos._id).emit('gameStart', playerTurn);
-                }
-            });
-            */
         });
 
-        socket.on('shoot', function(targetCell) {
-            var ships = (playerTurn === creator.name) ? gameInfo.opponent.ships : gameInfo.creator.ships;
-            var hasHit = false;
-            for (var i = 0; i < ships.length; i++) {
-                var ship = ships[i];
-                for (var j = 0; j < ship.cells.length; j++) {
-                    var cell = ship.cells[j];
-                    if (targetCell.posX == cell.posX && targetCell.posY == cell.posY)
-                        hasHit = true;
-                }
-            }
-
-            playerTurn = (playerTurn === creator.name) ? opponent.name : creator.name;
-            var turnResult = {
-                hit: hasHit,
-                cell: targetCell,
-                turn: playerTurn
-            };
-            gameIO.to(gameInfos._id).emit('turnEnded', turnResult);
+        socket.on('turnEnded', function(turnResult) {
+            gameIO.to(gameInfos._id).emit('notifyTurnEnded', turnResult);
         });
 
     });

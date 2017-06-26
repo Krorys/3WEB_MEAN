@@ -189,18 +189,80 @@ function GameCtrl($scope, $rootScope, $http, $state, $stateParams, socket, isGam
 
     $scope.shoot = function(cell) {
         if ($scope.canPlay) {
-            socket.emit('shoot', cell);
+            // socket.emit('shoot', cell);
+            checkShot(cell);
             $scope.canPlay = false;
         }
     };
 
-    function updateGame(fields) {
-        $http.post('/api/games/' + $scope.game._id, fields)
-        .then(function(result) {
-            if (result.data.success)
+    function checkShot(targetCell) {
+        var ships = ($scope.playerTurn === $scope.game.creator.username) ? $scope.game.opponent.ships : $scope.game.creator.ships;
+        var cellHit, shipId, cellId;
+        for (var i = 0; i < ships.length; i++) {
+            var ship = ships[i];
+            for (var j = 0; j < ship.cells.length; j++) {
+                var cell = ship.cells[j];
+                if (targetCell.posX == cell.posX && targetCell.posY == cell.posY) {
+                    targetCell.state = 'hit';
+                    cellHit = true;
+                    shipId = i;
+                    cellId = j;
+                    break;
+                }
+            }
+        }
+
+        var cellInfos = {
+            hit: cellHit,
+            cell: targetCell,
+            shipId: shipId,
+            cellId: cellId
+        };
+
+        updateBoard(cellInfos);
+    }
+
+    function updateBoard(cellInfos) {
+
+        $scope.playerTurn = getOppositePlayer($scope.playerTurn);
+        var turnResult = {
+            hit: cellInfos.hit,
+            cell: cellInfos.cell,
+            player: $scope.playerTurn
+        };
+        if (turnResult.hit) {
+            var isCreator = ($scope.game.creator.username === $scope.user.username);
+            var dbPath = (isCreator ? 'creator' : 'opponent') + '.ships.' + cellInfos.shipId + '.cells.' + cellInfos.cellId + '.state';
+
+            var fields = {};
+            fields[dbPath] = cellInfos.cell.state;
+
+            updateAndReturnGame(fields, function(turnResult) {
+                socket.emit('turnEnded', turnResult);
+            }, turnResult);
+        }
+        else
+            socket.emit('turnEnded', turnResult);
+    }
+
+    function updateAndReturnGame(fields, callback, arg) {
+        var onSuccess = function(result) {
+            if (result.data.success) {
                 socket.emit('gameUpdated', result.data.game);
+            }
             // console.log(result.data.game);
-        },
+        };
+        if (callback) {
+            onSuccess = function(result) {
+                if (result.data.success) {
+                    socket.emit('gameUpdated', result.data.game);
+                    callback(arg);
+                }
+                // console.log(result.data.game);
+            };
+        }
+        $http.post('/api/games/' + $scope.game._id, fields)
+        .then(onSuccess,
         function(result) {
             console.log('Error: ' + result);
         });
@@ -230,29 +292,24 @@ function GameCtrl($scope, $rootScope, $http, $state, $stateParams, socket, isGam
         // console.log(board);
     }
 
-    function changePlayerTurn(turn) {
+    function setPlayerTurn(turn) {
         $scope.canPlay = (turn === $scope.user.username);
         $scope.playerTurn = turn;
     }
 
-    // SOCKETS RECEIVED 
-    /*
-    socket.on('updateGame', function () {
-        var fields = { opponent: $scope.user.username, status: 'closed' };
-        $http.post('/api/games/' + $scope.game._id, fields)
-        .then(function(result) {
-            if (result.data.success)
-                socket.emit('gameClosed', result.data.game);
-            // console.log(result.data.game);
-        },
-        function(result) {
-            console.log('Error: ' + result);
-        });
-    });
-    */
+    function getOppositePlayer(player) {
+        var oppositePlayer = (player === $scope.game.creator.username) ? $scope.game.opponent.name : $scope.game.creator.username;
+        return player;
+        // $scope.playerTurn = ($scope.playerTurn === $scope.game.creator.username) ? $scope.game.opponent.username : $scope.game.creator.username;
+    }
 
+    // SOCKETS RECEIVED 
     socket.on('updateGameInDb', function(fields) {
-        updateGame(fields);
+        updateAndReturnGame(fields);
+    });
+
+    socket.on('updateGameInfo', function(game) {
+        socket.emit('gameInfosUpdated', game);
     });
 
     socket.on('overwriteGame', function (game) {
@@ -271,19 +328,18 @@ function GameCtrl($scope, $rootScope, $http, $state, $stateParams, socket, isGam
         fillBoard($scope.guessBoard);
         $scope.swapBoards();
         $scope.gameStarted = true;
-        // $scope.canPlay = (playerTurn === $scope.user.username);
-        changePlayerTurn(playerTurn);
+        setPlayerTurn(playerTurn);
     });
 
-    socket.on('turnEnded', function(turnResult) {
+    socket.on('notifyTurnEnded', function(turnResult) {
+        var previousPlayer = getOppositePlayer(turnResult.player);
         // new msg dans le chat has hit or not
-        changePlayerTurn(turnResult.turn);
         if (turnResult.hit)
-            var displayMsg = $scope.playerTurn + ' has hit on position [' + turnResult.cell.posX + ',' + turnResult.cell.posY + '] !';
+            var displayMsg = previousPlayer + ' has hit on position [' + turnResult.cell.posX + ',' + turnResult.cell.posY + '] !';
         else
-            var displayMsg = $scope.playerTurn + ' missed on position [' + turnResult.cell.posX + ',' + turnResult.cell.posY + '] !';
+            var displayMsg = previousPlayer + ' missed on position [' + turnResult.cell.posX + ',' + turnResult.cell.posY + '] !';
         console.log(displayMsg);
-        
+        setPlayerTurn(turnResult.player);
     });
 
 }
